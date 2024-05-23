@@ -18,10 +18,21 @@ router.post(
         });
       }),
     body("password").trim().isLength({ min: 6 }),
-    body("username").trim().isLength({ min: 6 }),
+    body("username")
+      .trim()
+      .isLength({ min: 6 })
+      .custom((value) => {
+        return Auth.findOne({ username: value }).then((user) => {
+          if (user) {
+            return Promise.reject("Username already exists");
+          }
+        });
+      }),
     body("name").trim().isLength({ min: 6 }),
   ],
   authController.registration
 );
+
+router.post("/login", authController.login);
 
 module.exports = router;
